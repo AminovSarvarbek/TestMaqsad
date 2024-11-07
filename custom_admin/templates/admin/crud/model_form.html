@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-3xl mx-auto">
+        <h2 class="text-2xl font-bold text-white mb-4">{{ model_name }} Form</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition">Save</button>
+        </form>
+        <a href="{% url 'custom_admin:dynamic_model_list' app_label model_name %}" 
+           class="inline-block mt-4 text-gray-300 hover:text-blue-400">Back to list</a>
+    </div>
+{% endblock %}

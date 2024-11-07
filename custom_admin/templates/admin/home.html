@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin - dashboard{% endblock %}
+
+{% block content %}
+<div class="p-6 bg-gray-800 shadow-md rounded-lg">
+    <h1 class="text-3xl font-bold mb-4">Admin Dashboard</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-indigo-700 text-white p-4 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold">Users</h2>
+            <p class="mt-2">Manage user accounts and settings.</p>
+            <a href="{% url 'custom_admin:users' %}" class="inline-block mt-4 bg-white text-indigo-700 py-2 px-4 rounded">View Users</a>
+        </div>
+        <div class="bg-green-700 text-white p-4 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold">Questions</h2>
+            <p class="mt-2">View and generate questions.</p>
+            <a href="{% url 'custom_admin:questions' %}" class="inline-block mt-4 bg-white text-green-700 py-2 px-4 rounded">View Question</a>
+        </div>
+        <div class="bg-red-700 text-white p-4 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold">Settings Admin</h2>
+            <p class="mt-2">Edit admin.</p>
+            <a href="{% url 'custom_admin:admin_update' %}" class="inline-block mt-4 bg-white text-red-700 py-2 px-4 rounded">Update Admin</a>
+        </div>
+    </div>
+</div>
+{% endblock content %}

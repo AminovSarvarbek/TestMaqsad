@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+
+{% block content %}
+<h2 class="text-3xl font-bold mb-6 text-white">{{ model_name }} List</h2>
+<form method="get" class="mb-6">
+    <div class="flex items-center">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search..."
+               class="flex-grow border rounded-l px-4 py-2 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-blue-500">
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600 transition">Search</button>
+    </div>
+</form>
+<div class="overflow-x-auto">
+    <table class="min-w-full bg-gray-900 shadow-md rounded mb-6">
+        <thead>
+            <tr class="bg-gray-800">
+                {% for field_name in field_names %}
+                    <th class="px-4 py-2 text-left text-gray-300 font-semibold">{{ field_name }}</th>
+                {% endfor %}
+                <th class="px-4 py-2 text-left text-gray-300 font-semibold">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for obj in objects %}
+                <tr class="border-t border-gray-700">
+                    {% for field_name in field_names %}
+                        <td class="px-4 py-2 text-gray-200">{{ obj|get_attr:field_name }}</td>
+                    {% endfor %}
+                    <td class="px-4 py-2 flex space-x-2">
+                        <a href="{% url 'custom_admin:dynamic_model_edit' app_label model_name obj.pk %}"
+                           class="text-blue-400 hover:underline">Edit</a>
+                        <a href="{% url 'custom_admin:dynamic_model_delete' app_label model_name obj.pk %}"
+                           class="text-red-400 hover:underline">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="pagination mb-4 text-gray-300">
+    <span class="step-links">
+        {% if objects.has_previous %}
+            <a href="?page=1{% if query %}&q={{ query }}{% endif %}" class="mr-2 hover:text-blue-500">&laquo; First</a>
+            <a href="?page={{ objects.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="mr-2 hover:text-blue-500">Previous</a>
+        {% endif %}
+        <span class="current">
+            Page {{ objects.number }} of {{ objects.paginator.num_pages }}.
+        </span>
+        {% if objects.has_next %}
+            <a href="?page={{ objects.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="ml-2 hover:text-blue-500">Next</a>
+            <a href="?page={{ objects.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" class="ml-2 hover:text-blue-500">Last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+<a href="{% url 'custom_admin:dynamic_model_add' app_label model_name %}"
+   class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 transition">Add New</a>
+{% endblock %}

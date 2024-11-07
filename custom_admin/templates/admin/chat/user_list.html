@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4 text-center">Xabar Jo'natgan Foydalanuvchilar</h1>
+    
+    <h2 class="text-xl font-semibold mb-4">Yangi Xabarlar</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for item in new_users %}
+            <a href="{% url 'custom_admin:chat_user_messages' item.user.id %}" class="bg-red-600 text-white shadow-md rounded-lg p-4 text-center hover:bg-red-500 transition duration-300">
+                <span class="font-semibold">{{ item.user }}</span> | 
+                <span class="text-sm">{{ item.new_message_count }} yangi xabar</span>
+            </a>
+        {% empty %}
+            <p class="text-center">Yangi xabarlar yo'q.</p>
+        {% endfor %}
+    </div>
+
+    <h2 class="text-xl font-semibold mt-8 mb-4">Arxivdagi Xabarlar</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for user in archived_users %}
+            <a href="{% url 'custom_admin:chat_user_messages' user.id %}" class="bg-gray-700 text-white shadow-md rounded-lg p-4 text-center hover:bg-gray-600 transition duration-300">
+                <span class="font-semibold">{{ user }}</span> | 
+                <span class="text-sm">{{ user.message_set.count }} xabar</span>
+            </a>
+        {% empty %}
+            <p class="text-center">Hech qanday arxivda xabar yo'q.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

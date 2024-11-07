@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-3xl mx-auto">
+    <h1 class="text-2xl font-semibold mb-6 text-center text-white">Add Question</h1>
+    {% if messages %}
+        <ul class="bg-green-200 text-green-700 border border-green-400 rounded p-2 mt-2">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="POST" class="space-y-4">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded focus:outline-none focus:ring focus:ring-blue-300 transition duration-300">
+            Save Changes
+        </button>
+    </form>
+</div>
+
+{% endblock content %}

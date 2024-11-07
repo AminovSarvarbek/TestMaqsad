@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto p-4 bg-gray-800 text-white flex flex-col">
+    <h1 class="text-2xl font-bold mb-4 text-center">Tanlangan Foydalanuvchining Xabarlari</h1>
+    
+    <div class="flex-grow bg-gray-700 shadow-md rounded-lg p-4" id="messageList" aria-live="polite">
+        {% for message in messages %}
+            <div class="border-gray-600 py-2 rounded-xl {% if message.admin %}flex justify-end{% else %}flex justify-start{% endif %}">
+                <div class="max-w-xs {% if message.admin %}bg-blue-400{% else %}bg-gray-600{% endif %} rounded-xl pl-4 px-6 py-3 shadow-lg">
+                    <span class="font-semibold">{{ message.timestamp }}</span><br>
+                    <p class="mt-1">{{ message.message }}</p>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-center">Bu foydalanuvchining hech qanday xabari yo'q.</p>
+        {% endfor %}
+    </div>
+
+    <div class="mt-4">
+        <h2 class="text-lg font-bold">Admin xabarini jo'natish</h2>
+        <form id="messageForm" action="" method="post">
+            {% csrf_token %}
+            <textarea id="message" class="w-full border border-gray-600 bg-gray-800 text-white p-2 rounded-md" rows="3" placeholder="Xabaringizni yozing..." required></textarea>
+            <button type="submit" class="bg-blue-600 text-white rounded-md px-4 py-2 mt-2 hover:bg-blue-500">Jo'natish</button>
+        </form>
+    </div>
+
+    <a href="{% url 'custom_admin:chat_user_list' %}" class="mt-4 inline-block text-blue-400 hover:text-blue-300">Foydalanuvchilar ro'yxatiga qaytish</a>
+</div>
+
+<div id="notification" class="fixed bottom-5 right-5 hidden bg-blue-600 text-white p-3 rounded-lg shadow-lg">
+    Yangi xabar keldi!
+</div>
+
+<script>
+    const messageForm = document.getElementById('messageForm');
+    const messageInput = document.getElementById('message');
+    const messageList = document.getElementById('messageList');
+    const notification = document.getElementById('notification');
+
+    const userId = "{{ user.id }}";
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const socket = new WebSocket(`${protocol}://${window.location.host}/ws/chat/${userId}/`);
+
+    function requestNotificationPermission() {
+        if ("Notification" in window) {
+            if (Notification.permission === "granted") {
+                console.log("Notification permission granted.");
+            } else if (Notification.permission !== "denied") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        console.log("Notification permission granted.");
+                    }
+                });
+            }
+        }
+    }
+
+    function scrollToBottom() {
+        messageList.scrollTop = messageList.scrollHeight;
+    }
+
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        const isAdmin = data.is_admin;
+
+        const newMessage = document.createElement('div');
+        newMessage.classList.add('flex', 'py-2', 'rounded-xl', isAdmin ? 'justify-end' : 'justify-start');
+        newMessage.innerHTML = 
+            `<div class="max-w-xs ${isAdmin ? 'bg-blue-400' : 'bg-gray-600'} rounded-xl pl-4 px-6 py-3 shadow-lg">
+                <span class="font-semibold">${data.timestamp}</span>
+                <p class="mt-1">${data.message}</p>
+            </div>`;
+
+        if (!(isAdmin && messageList.lastChild && messageList.lastChild.innerText.includes(data.message))) {
+            messageList.appendChild(newMessage);
+        }
+
+        scrollToBottom();
+
+        if (!isAdmin && Notification.permission === "granted") {
+            new Notification("Yangi xabar", {
+                body: data.message,
+                icon: '/path-to-icon.png'
+            });
+        }
+
+        notification.classList.remove('hidden');
+        setTimeout(() => {
+            notification.classList.add('hidden');
+        }, 3000);
+    };
+
+    messageForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const message = messageInput.value.trim();
+        if (message !== "") {
+            const newMessage = document.createElement('div');
+            newMessage.classList.add('flex', 'justify-end', 'py-2', 'rounded-xl');
+            newMessage.innerHTML = 
+                `<div class="max-w-xs bg-blue-400 rounded-xl pl-4 px-6 py-3 shadow-lg">
+                    <span class="font-semibold">Hozir</span>
+                    <p class="mt-1">${message}</p>
+                </div>`;
+            messageList.appendChild(newMessage);
+
+            socket.send(JSON.stringify({ 'message': message, 'is_admin': true }));
+            messageInput.value = '';
+
+            scrollToBottom();
+        }
+    });
+
+    socket.onerror = function(error) {
+        console.error("WebSocket xatosi:", error);
+    };
+
+    socket.onclose = function(event) {
+        console.log("WebSocket ulanishi yopildi:", event);
+    };
+
+    window.onload = function() {
+        scrollToBottom();
+        requestNotificationPermission();
+    };
+</script>
+
+{% endblock %}

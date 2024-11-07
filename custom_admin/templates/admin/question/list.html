@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-6 bg-gray-800 text-gray-100 rounded-lg">
+    <h1 class="text-2xl font-bold mb-4">Questions</h1>
+
+    <!-- Add Button -->
+    <div class="mb-4">
+        <a href="{% url 'custom_admin:add' %}" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500">
+            Add New Question
+        </a>
+        <a href="{% url 'custom_admin:upload_questions' %}" class="ml-5 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500">
+            Upload with excel
+        </a>
+    </div>
+
+    <!-- Filter Form -->
+    <form method="get" class="mb-4 space-x-4 flex">
+        <!-- Predmetlar bo'yicha filtr -->
+        <select name="subject" class="p-2 rounded bg-gray-700 text-gray-100" onchange="this.form.submit()">
+            <option value="">All</option>
+            {% for subject in subjects %}
+                <option value="{{ subject.id }}" {% if subject_filter == subject.id|stringformat:"s" %}selected{% endif %}>
+                    {{ subject.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <!-- Mavzular bo'yicha filtr -->
+        <select name="topic" class="p-2 rounded bg-gray-700 text-gray-100" id="topicSelect" onchange="this.form.submit()">
+            <option value="">All topics</option>
+            {% for topic in topics %}
+                <option value="{{ topic.id }}" {% if topic_filter == topic.id|stringformat:"s" %}selected{% endif %}>
+                    {{ topic.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <!-- Qidiruv -->
+        <input type="text" name="search" placeholder="Savollarni qidirish" value="{% if search_query %}{{ search_query }}{% endif %}" class="p-2 rounded bg-gray-700 text-gray-100">
+
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Qidirish</button>
+    </form>
+
+    <!-- Display Questions -->
+    <ul>
+        {% for question in questions %}
+            <li class="mb-2">
+                <div class="p-4 bg-gray-700 rounded">
+                    <p class="text-sm">{{ question.topic.subject.name }} - {{ question.topic.name }}</p>
+                    <a class="text-md text-blue-600 font-bold" href="{% url 'custom_admin:update' question.id %}">{{ question.text|slice:"100" }}</a>
+                </div>
+            </li>
+        {% empty %}
+            <li>No questions available.</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Pagination Controls -->
+    <div class="mt-6">
+        <span class="text-gray-400">Page {{ questions.number }} of {{ questions.paginator.num_pages }}</span>
+
+        <div class="flex justify-center mt-4 space-x-2">
+            {% if questions.has_previous %}
+                <a href="?page=1&subject={{ subject_filter }}&topic={{ topic_filter }}&search={{ search_query }}" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded">First</a>
+                <a href="?page={{ questions.previous_page_number }}&subject={{ subject_filter }}&topic={{ topic_filter }}&search={{ search_query }}" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded">Previous</a>
+            {% endif %}
+
+            {% for num in questions.paginator.page_range %}
+                {% if questions.number == num %}
+                    <span class="px-3 py-1 bg-indigo-600 text-white rounded">{{ num }}</span>
+                {% elif num > questions.number|add:'-5' and num < questions.number|add:'5' %}
+                    <a href="?page={{ num }}&subject={{ subject_filter }}&topic={{ topic_filter }}&search={{ search_query }}" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if questions.has_next %}
+                <a href="?page={{ questions.next_page_number }}&subject={{ subject_filter }}&topic={{ topic_filter }}&search={{ search_query }}" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded">Next</a>
+                <a href="?page={{ questions.paginator.num_pages }}&subject={{ subject_filter }}&topic={{ topic_filter }}&search={{ search_query }}" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded">Last</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
