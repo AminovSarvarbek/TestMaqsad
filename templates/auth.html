@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Authentication</title>
+    <script src="https://telegram.org/js/telegram-widget.js?7" async></script>
+</head>
+<body>
+    <h1>Telegram orqali autentifikatsiya</h1>
+
+    <!-- Telegram login tugmasi -->
+    <div>
+        <script 
+            data-telegram-login="YOUR_TELEGRAM_BOT_USERNAME"
+            data-size="large"
+            data-radius="10"
+            data-auth-url="javascript:telegramAuth(event)"
+            async
+        ></script>
+    </div>
+
+    <h2>Foydalanuvchi ma'lumotlari:</h2>
+    <pre id="response"></pre>
+
+    <script>
+        // Telegram ma'lumotlarini olish va API'ga yuborish
+        function telegramAuth(event) {
+            const user = event.data;
+            document.getElementById("response").textContent = JSON.stringify(user, null, 2);
+
+            // Ma'lumotlarni backend API'ga yuborish
+            fetch("/api/user/auth/telegram", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(user)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Backenddan javob olish
+                if (data.tokens) {
+                    alert("Authentication successful! Access Token: " + data.tokens.access);
+                } else {
+                    alert("Authentication failed: " + data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        }
+    </script>
+</body>
+</html>

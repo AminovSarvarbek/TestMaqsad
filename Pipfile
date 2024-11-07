@@ -1,0 +1,25 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+djangorestframework = "*"
+djangorestframework-simplejwt = "*"
+django-redis = "*"
+redis = "*"
+asyncio = "*"
+celery = "*"
+django-bootstrap5 = "*"
+django-crispy-forms = "*"
+crispy-bootstrap4 = "*"
+crispy-tailwind = "*"
+channels-postgres = "*"
+channels = "*"
+daphne = "*"
+django-cors-headers = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"
